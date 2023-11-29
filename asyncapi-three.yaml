@@ -1,0 +1,64 @@
+asyncapi: 3.0.0
+info:
+  title: Slack API
+  version: 1.0.0
+  description: |
+    Send slack messages
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0'
+  externalDocs:
+      "description": 'Find more info here'
+      url: 'https://example.com'
+servers:
+  development:
+    host: test.mosquitto.org
+    protocol: kafka
+    description: Test MQTT broker
+    tags:
+      [{
+        "name": "env:development",
+        "description":"Development environment"
+      }]
+channels:
+  user/sendmessage:
+    address: user/sendmessage
+    messages:
+      emisendmessage.message:
+        $ref: '#/components/messages/sendmessage'
+operations:
+  emitsendmessageEvent:
+    action: send
+    channel:
+      $ref: '#/channels/user~1sendmessage'
+    messages:
+      - $ref: '#/components/messages/sendmessage'
+components:
+  messages:
+    sendmessage:
+      name: sendmessage
+      title: Send a message
+      summary: Inform about a message sent in the system
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/sendmessagePayload'
+  schemas:
+    sendmessagePayload:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: foo
+        lastName:
+          type: string
+          description: bar
+        message:
+          type: string
+          format: text
+          description: baz
+        createdAt:
+          type: string
+          format: date-time
+        sentTo:
+          type: string
+          description: foo

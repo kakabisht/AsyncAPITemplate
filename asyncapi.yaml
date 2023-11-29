@@ -1,0 +1,61 @@
+asyncapi: '2.6.0'
+info:
+  title: Pizza API
+  version: 1.0.0
+  description: An API to order pizza
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0'
+externalDocs:
+  "description": 'Find more info here'
+  url: 'https://example.com'
+
+# You can have multiple servers for production, staging, test, etc.
+servers:
+  development:
+    url: broker.mycompany.com
+    protocol: kafka
+    description: Test kafka broker.
+    tags:
+      [{
+        "name": "env:development",
+        "description":"Development environment"
+      }]
+
+# Each channel is part of a server. If a channel does not specify a server, 
+# it's available on all servers.
+
+channels:
+  order/submit:
+    publish:
+      message:
+        $ref: '#/components/messages/orderSubmitted'
+  kitchen/incomingOrders:
+    subscribe:
+      message:
+        $ref: '#/components/messages/orderSubmitted'
+
+components:
+  messages:
+    orderSubmitted:
+      name: orderSubmitted
+      title: Order Submitted
+      summary: Notifies when a new pizza order is submitted
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/orderPayload'
+  
+  schemas:
+    orderPayload:
+      type: object
+      properties:
+        orderId:
+          type: string
+          description: The unique identifier for the order
+        pizzaType:
+          type: string
+          description: The type of pizza ordered
+        customerName:
+          type: string
+          description: The name of the customer
+  
