@@ -1,64 +1,65 @@
 asyncapi: 3.0.0
 info:
-  title: Slack API
+  title: Pizza API
   version: 1.0.0
-  description: |
-    Send slack messages
+  description: An API to order pizza
   license:
     name: Apache 2.0
     url: 'https://www.apache.org/licenses/LICENSE-2.0'
   externalDocs:
-      "description": 'Find more info here'
-      url: 'https://example.com'
+    description: Find more info here
+    url: 'https://example.com'
 servers:
   development:
-    host: test.mosquitto.org
+    host: broker.mycompany.com
     protocol: kafka
-    description: Test MQTT broker
+    description: Test kafka broker.
     tags:
-      [{
-        "name": "env:development",
-        "description":"Development environment"
-      }]
+      - name: 'env:development'
+        description: Development environment
 channels:
-  user/sendmessage:
-    address: user/sendmessage
+  order/submit:
+    address: order/submit
     messages:
-      emisendmessage.message:
-        $ref: '#/components/messages/sendmessage'
+      publish.message:
+        $ref: '#/components/messages/orderSubmitted'
+  kitchen/incomingOrders:
+    address: kitchen/incomingOrders
+    messages:
+      subscribe.message:
+        $ref: '#/components/messages/orderSubmitted'
 operations:
-  emitsendmessageEvent:
+  order/submit.publish:
+    action: receive
+    channel:
+      $ref: '#/channels/order~1submit'
+    messages:
+      - $ref: '#/components/messages/orderSubmitted'
+  kitchen/incomingOrders.subscribe:
     action: send
     channel:
-      $ref: '#/channels/user~1sendmessage'
+      $ref: '#/channels/kitchen~1incomingOrders'
     messages:
-      - $ref: '#/components/messages/sendmessage'
+      - $ref: '#/components/messages/orderSubmitted'
 components:
   messages:
-    sendmessage:
-      name: sendmessage
-      title: Send a message
-      summary: Inform about a message sent in the system
+    orderSubmitted:
+      name: orderSubmitted
+      title: Order Submitted
+      summary: Notifies when a new pizza order is submitted
       contentType: application/json
       payload:
-        $ref: '#/components/schemas/sendmessagePayload'
+        $ref: '#/components/schemas/orderPayload'
   schemas:
-    sendmessagePayload:
+    orderPayload:
       type: object
       properties:
-        firstName:
+        orderId:
           type: string
-          description: foo
-        lastName:
+          description: The unique identifier for the order
+        pizzaType:
           type: string
-          description: bar
-        message:
+          description: The type of pizza ordered
+        customerName:
           type: string
-          format: text
-          description: baz
-        createdAt:
-          type: string
-          format: date-time
-        sentTo:
-          type: string
-          description: foo
+          description: The name of the customer
